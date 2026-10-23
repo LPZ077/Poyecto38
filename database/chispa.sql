@@ -1,0 +1,49 @@
+CREATE DATABASE IF NOT EXISTS chispa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE chispa;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(120) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  rol ENUM('estudiante','empleador') NOT NULL,
+  telefono VARCHAR(30) DEFAULT NULL,
+  carrera VARCHAR(120) DEFAULT NULL,
+  empresa VARCHAR(120) DEFAULT NULL,
+  creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS vacantes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  empleador_id INT NOT NULL,
+  titulo VARCHAR(150) NOT NULL,
+  empresa VARCHAR(120) NOT NULL,
+  descripcion TEXT NOT NULL,
+  modalidad VARCHAR(40) NOT NULL,
+  zona VARCHAR(60) NOT NULL,
+  area VARCHAR(60) NOT NULL,
+  estado ENUM('activa','cerrada') NOT NULL DEFAULT 'activa',
+  creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (empleador_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS postulaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  vacante_id INT NOT NULL,
+  estudiante_id INT NOT NULL,
+  mensaje TEXT,
+  estado ENUM('nueva','en_revision','aceptada','rechazada') NOT NULL DEFAULT 'nueva',
+  creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_post (vacante_id, estudiante_id),
+  FOREIGN KEY (vacante_id) REFERENCES vacantes(id) ON DELETE CASCADE,
+  FOREIGN KEY (estudiante_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS correos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  destinatario VARCHAR(150) NOT NULL,
+  asunto VARCHAR(200) NOT NULL,
+  cuerpo MEDIUMTEXT NOT NULL,
+  enviado TINYINT(1) NOT NULL DEFAULT 0,
+  creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
